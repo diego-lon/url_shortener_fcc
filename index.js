@@ -14,7 +14,11 @@ const urlChecker = (req, res, next) => {
   const originalUrl = req.body.url;
   const parsedUrl = url.parse(originalUrl);
   const hostname = parsedUrl.hostname;
-  dns.lookup(hostname, (err, address) => {
+  if (!hostname) {
+    return res.json({ error: "invalid url" });
+  }
+
+  dns.lookup(hostname, (err) => {
     if (err) {
       return res.json({ error: "invalid url" });
     } else {
@@ -48,7 +52,6 @@ app.post("/api/shorturl", urlChecker, function (req, res) {
 
 app.get("/api/shorturl/:id", function (req, res) {
   const urlId = Number(req.params.id);
-  console.log(urlId, short_urls);
   const urlFound = short_urls.find((url) => url.short_url === urlId);
   if (urlFound) {
     res.redirect(urlFound.original_url);
